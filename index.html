@@ -3,57 +3,356 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>AI English Practice (Vercel)</title>
-    <!-- 스타일은 기존과 동일하게 유지 (생략) -->
+    <title>AI English Pattern Practice</title>
     <style>
-        /* 기존 스타일 그대로 사용 */
-        :root { --primary: #10a37f; --bg: #f3f4f6; --card-bg: #ffffff; --error: #ef4444; --success: #22c55e; }
-        body { font-family: sans-serif; background: var(--bg); display: flex; justify-content: center; align-items: center; min-height: 100vh; margin: 0; }
-        .container { width: 90%; max-width: 600px; background: var(--card-bg); padding: 20px; border-radius: 16px; text-align: center; box-shadow: 0 10px 15px rgba(0,0,0,0.1); }
-        .mic-btn { width: 80px; height: 80px; border-radius: 50%; background: var(--primary); border: none; color: white; font-size: 30px; cursor: pointer; margin: 20px; }
-        .mic-btn.recording { background: var(--error); animation: pulse 1.5s infinite; }
+        :root {
+            --primary: #000000; /* Vercel Black */
+            --accent: #3291ff; /* Vercel Blue */
+            --success: #0070f3;
+            --error: #e00;
+            --bg: #fafafa;
+            --card-bg: #ffffff;
+            --text-main: #111;
+            --text-sub: #666;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            color: var(--text-main);
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            background-color: var(--card-bg);
+            border-radius: 12px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #eaeaea;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            border-bottom: 1px solid #eaeaea;
+            background: #fff;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 16px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 500;
+            color: var(--text-sub);
+            transition: all 0.2s ease;
+            font-size: 0.95rem;
+        }
+
+        .tab:hover { background-color: #fcfcfc; }
+        .tab.active {
+            color: var(--text-main);
+            font-weight: 700;
+            border-bottom: 2px solid var(--text-main);
+        }
+
+        /* Content Area */
+        .content {
+            padding: 40px 20px;
+            text-align: center;
+            min-height: 320px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .header-info {
+            font-size: 0.85rem;
+            color: #888;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 10px;
+        }
+
+        .main-text {
+            font-size: 2rem;
+            font-weight: 800;
+            margin: 10px 0 20px 0;
+            line-height: 1.3;
+        }
+
+        .sub-text {
+            font-size: 1.1rem;
+            color: var(--text-sub);
+        }
+
+        .highlight { color: var(--success); font-weight: bold; }
+
+        /* Scramble Chips */
+        .scramble-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 20px;
+        }
+
+        .word-chip {
+            background-color: #f0f0f0;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 1rem;
+            border: 1px solid transparent;
+            transition: all 0.2s;
+        }
+
+        .word-chip.active {
+            background-color: var(--success);
+            color: white;
+            transform: scale(1.05);
+        }
+
+        /* Controls */
+        .controls {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .mic-btn {
+            width: 72px;
+            height: 72px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+            transition: all 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+
+        .mic-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 12px rgba(0,0,0,0.25); }
+        .mic-btn:active { transform: translateY(1px); }
+        
+        .mic-btn.recording {
+            background-color: var(--error);
+            animation: pulse 1.5s infinite;
+        }
+        
+        .mic-btn.processing {
+            background-color: #888;
+            cursor: wait;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(224, 0, 0, 0.4); }
+            70% { box-shadow: 0 0 0 15px rgba(224, 0, 0, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(224, 0, 0, 0); }
+        }
+
+        .feedback-area {
+            min-height: 50px;
+            font-size: 1rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .score-msg { font-weight: bold; margin-top: 5px; font-size: 1.1rem; }
+        .match-success { color: var(--success); }
+        .match-fail { color: var(--error); }
+
+        .nav-group { display: flex; gap: 12px; }
+        
+        .nav-btn {
+            background: white;
+            border: 1px solid #eaeaea;
+            padding: 8px 24px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: var(--text-main);
+            transition: all 0.2s;
+        }
+        
+        .nav-btn:hover { border-color: #000; }
         .hidden { display: none; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(239,68,68,0.7); } 70% { box-shadow: 0 0 0 15px transparent; } }
-        /* 탭, 단어 카드 등 나머지 CSS는 이전 코드 참고 */
+
+        /* Speaker Button */
+        .speak-btn {
+            background: none;
+            border: 1px solid #ddd;
+            border-radius: 50%;
+            width: 30px;
+            height: 30px;
+            cursor: pointer;
+            margin-left: 8px;
+            vertical-align: middle;
+        }
+        .speak-btn:hover { background: #f0f0f0; }
+
+        /* Loading Spinner */
+        .spinner {
+            width: 20px; height: 20px;
+            border: 2px solid #fff;
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+            display: none;
+        }
+        .mic-btn.processing .spinner { display: block; }
+        .mic-btn.processing span { display: none; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- API Key 입력창 제거됨 -->
-    
-    <!-- 탭 및 UI 구조는 동일 -->
-    <h2 id="q-display">Question 1</h2>
-    <div id="content-area">
-        <h1 id="main-text">내 이름은 Jade야</h1>
-        <p id="sub-text">영어로 말해보세요.</p>
+    <!-- Navigation Tabs -->
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab(0)">1. 실시간 통역</div>
+        <div class="tab" onclick="switchTab(1)">2. AI 인터뷰</div>
+        <div class="tab" onclick="switchTab(2)">3. 음성 퍼즐</div>
     </div>
 
-    <div id="feedback" style="min-height: 40px; margin: 10px; color: #666;"></div>
+    <!-- Content -->
+    <div class="content">
+        <div>
+            <div class="header-info">Question <span id="q-num">1</span> / 10</div>
+            
+            <!-- Activity 1: Interpretation -->
+            <div id="act-1" class="activity-box">
+                <div class="main-text" id="korean-prompt">내 이름은 Jade야</div>
+                <div class="sub-text">영어로 말해보세요.</div>
+            </div>
 
-    <button class="mic-btn" id="mic-btn" onclick="toggleRecording()">🎤</button>
-    
-    <div>
-        <button onclick="prevQuestion()">이전</button>
-        <button onclick="nextQuestion()">다음</button>
+            <!-- Activity 2: Role-play -->
+            <div id="act-2" class="activity-box hidden">
+                <div class="sub-text">
+                    AI: <span id="english-question" style="font-weight: 600; color:#333;">What's your name?</span>
+                    <button class="speak-btn" onclick="speakQuestion()" title="다시 듣기">🔊</button>
+                </div>
+                <div class="main-text" style="margin-top: 30px;">
+                    이름: <span id="role-name" class="highlight">Jade</span>
+                </div>
+                <div class="sub-text" style="font-size: 0.9rem;">위 이름을 넣어 전체 문장으로 답하세요.</div>
+            </div>
+
+            <!-- Activity 3: Unscramble -->
+            <div id="act-3" class="activity-box hidden">
+                <div class="sub-text">순서대로 말하여 문장을 완성하세요</div>
+                <div class="scramble-container" id="scramble-box">
+                    <!-- Chips injected via JS -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Feedback & Controls -->
+        <div class="controls">
+            <div class="feedback-area">
+                <div id="spoken-text" style="color: #888;">마이크를 누르고 말하세요</div>
+                <div id="score-msg" class="score-msg"></div>
+            </div>
+
+            <button class="mic-btn" id="mic-btn" onclick="toggleRecording()">
+                <span>🎤</span>
+                <div class="spinner"></div>
+            </button>
+
+            <div class="nav-group">
+                <button class="nav-btn" onclick="prevQuestion()">이전</button>
+                <button class="nav-btn" onclick="nextQuestion()">다음</button>
+            </div>
+        </div>
     </div>
 </div>
 
 <script>
-    // --- 데이터 (기존과 동일) ---
+    // --- Data Source ---
     const patternData = [
         { q: "What's your name?", k: "내 이름은 Jade야", a: "My name is Jade.", s: ["My", "is", "name", "Jade"], hint: "Jade" },
-        // ... 나머지 데이터 9개 ...
+        { q: "Tell me your name", k: "내 이름은 Suzie야", a: "My name is Suzie.", s: ["My", "name", "is", "Suzie"], hint: "Suzie" },
+        { q: "Can you introduce yourself?", k: "내 이름은 Hyunju야", a: "My name is Hyunju.", s: ["My", "is", "name", "Hyunju"], hint: "Hyunju" },
+        { q: "Who are you?", k: "내 이름은 Dongin야", a: "My name is Dongin.", s: ["My", "name", "is", "Dongin"], hint: "Dongin" },
+        { q: "What should I call you?", k: "내 이름은 Tony야", a: "My name is Tony.", s: ["My", "name", "is", "Tony"], hint: "Tony" },
+        { q: "What your English name?", k: "내 이름은 Sally야", a: "My name is Sally.", s: ["My", "is", "name", "Sally"], hint: "Sally" },
+        { q: "Please tell me your name", k: "내 이름은 Jinho야", a: "My name is Jinho.", s: ["My", "name", "is", "Jinho"], hint: "Jinho" },
+        { q: "Your name, please?", k: "내 이름은 Minji야", a: "My name is Minji.", s: ["My", "name", "is", "Minji"], hint: "Minji" },
+        { q: "What do people call you?", k: "내 이름은 Andy야", a: "My name is Andy.", s: ["My", "name", "is", "Andy"], hint: "Andy" },
+        { q: "May I know your name?", k: "내 이름은 Jimin야", a: "My name is Jimin.", s: ["My", "name", "is", "Jimin"], hint: "Jimin" }
     ];
-    
+
+    // --- State Variables ---
+    let currentTab = 0;
     let currentIndex = 0;
     let isRecording = false;
     let mediaRecorder;
     let audioChunks = [];
 
-    // --- 로직 변경 부분 ---
+    // --- Initialization ---
+    window.onload = function() {
+        updateUI();
+    };
 
-    // 1. STT 요청 (Vercel Proxy로 전송)
+    // --- Audio Recording Logic ---
+    async function toggleRecording() {
+        const btn = document.getElementById('mic-btn');
+        const feedback = document.getElementById('spoken-text');
+
+        // 1. Stop Recording & Process
+        if (isRecording) {
+            mediaRecorder.stop();
+            isRecording = false;
+            btn.classList.remove('recording');
+            btn.classList.add('processing'); // Show spinner
+            feedback.innerText = "분석 중...";
+            return;
+        }
+
+        // 2. Start Recording
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            mediaRecorder = new MediaRecorder(stream);
+            audioChunks = [];
+
+            mediaRecorder.ondataavailable = event => {
+                audioChunks.push(event.data);
+            };
+
+            mediaRecorder.onstop = async () => {
+                const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
+                await sendToWhisper(audioBlob);
+            };
+
+            mediaRecorder.start();
+            isRecording = true;
+            btn.classList.add('recording');
+            feedback.innerText = "듣고 있어요...";
+            document.getElementById('score-msg').innerText = "";
+            
+        } catch (err) {
+            alert("마이크 접근 권한이 필요합니다.");
+            console.error(err);
+        }
+    }
+
+    // --- Vercel Proxy Communication (STT) ---
     async function sendToWhisper(blob) {
         const formData = new FormData();
         formData.append("file", blob, "recording.webm");
@@ -61,30 +360,35 @@
         formData.append("language", "en");
 
         try {
-            // 변경된 URL: /api/proxy?type=stt
+            // Call Vercel Backend
             const response = await fetch("/api/proxy?type=stt", {
                 method: "POST",
-                body: formData // 헤더는 브라우저가 자동으로 설정 (boundary 포함)
+                body: formData
             });
 
-            if (!response.ok) throw new Error("Server Error");
+            if (!response.ok) throw new Error("서버 연결 실패 (API Key 확인 필요)");
+
             const data = await response.json();
             
-            document.getElementById('mic-btn').classList.remove('recording');
-            processResult(data.text); // 결과 처리 함수는 기존과 동일
+            // UI Reset
+            document.getElementById('mic-btn').classList.remove('processing');
+            
+            if (data.error) throw new Error(data.error);
+            processResult(data.text);
 
         } catch (error) {
-            alert("오류: " + error.message);
-            document.getElementById('mic-btn').classList.remove('recording');
+            console.error(error);
+            document.getElementById('spoken-text').innerText = "오류 발생";
+            document.getElementById('score-msg').innerHTML = `<span class="match-fail">${error.message}</span>`;
+            document.getElementById('mic-btn').classList.remove('processing');
         }
     }
 
-    // 2. TTS 요청 (Vercel Proxy로 전송)
+    // --- Vercel Proxy Communication (TTS) ---
     async function speakQuestion() {
         const text = patternData[currentIndex].q;
         
         try {
-            // 변경된 URL: /api/proxy?type=tts
             const response = await fetch("/api/proxy?type=tts", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
@@ -95,55 +399,114 @@
                 })
             });
 
+            if (!response.ok) throw new Error("TTS Error");
+
             const blob = await response.blob();
             const audioUrl = URL.createObjectURL(blob);
             const audio = new Audio(audioUrl);
             audio.play();
 
         } catch (error) {
-            console.error("TTS Error:", error);
+            console.error("TTS failed:", error);
+            alert("음성을 재생할 수 없습니다.");
         }
     }
 
-    // --- 기존 로직 (녹음, UI 업데이트 등) ---
-    // 이 부분은 이전에 드린 코드의 toggleRecording, processResult, updateUI 등을 그대로 사용하면 됩니다.
-    // 단, toggleRecording 내부에서 sendToWhisper 호출 시 API Key 체크 로직은 삭제하세요.
-    
-    async function toggleRecording() {
-        const btn = document.getElementById('mic-btn');
-        if (!isRecording) {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            mediaRecorder = new MediaRecorder(stream);
-            audioChunks = [];
-            mediaRecorder.ondataavailable = e => audioChunks.push(e.data);
-            mediaRecorder.onstop = async () => {
-                const blob = new Blob(audioChunks, { type: 'audio/webm' });
-                document.getElementById('feedback').innerText = "분석 중...";
-                await sendToWhisper(blob);
-            };
-            mediaRecorder.start();
-            isRecording = true;
-            btn.classList.add('recording');
-        } else {
-            mediaRecorder.stop();
-            isRecording = false;
-            btn.classList.remove('recording');
+    // --- Game Logic ---
+    function processResult(spoken) {
+        const target = patternData[currentIndex].a;
+        const cleanSpoken = normalizeText(spoken);
+        const cleanTarget = normalizeText(target);
+        
+        document.getElementById('spoken-text').innerText = `"${spoken}"`;
+
+        let isCorrect = false;
+        let feedbackMsg = "";
+
+        if (currentTab === 0) { // Interpretation
+            isCorrect = cleanSpoken === cleanTarget;
+            feedbackMsg = isCorrect ? "Excellent! 완벽해요 🎉" : `정답: ${target}`;
+        } else if (currentTab === 1) { // Role-play
+            const hasPattern = cleanSpoken.includes("my name is");
+            const hasName = cleanSpoken.includes(patternData[currentIndex].hint.toLowerCase());
+            isCorrect = hasPattern && hasName;
+            feedbackMsg = isCorrect ? "Great Job! 인터뷰 성공 🎤" : `패턴과 이름(${patternData[currentIndex].hint})을 포함해주세요.`;
+        } else if (currentTab === 2) { // Unscramble
+            isCorrect = cleanSpoken === cleanTarget;
+            feedbackMsg = isCorrect ? "Puzzle Solved! 정답입니다 🧩" : "순서가 조금 다른 것 같아요.";
+            highlightWords(spoken);
+        }
+
+        const scoreEl = document.getElementById('score-msg');
+        scoreEl.innerText = feedbackMsg;
+        scoreEl.className = "score-msg " + (isCorrect ? "match-success" : "match-fail");
+    }
+
+    function normalizeText(text) {
+        return text.toLowerCase().replace(/[.,?!]/g, "").trim();
+    }
+
+    // --- UI Helpers ---
+    function switchTab(tabIndex) {
+        currentTab = tabIndex;
+        document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === tabIndex));
+        document.querySelectorAll('.activity-box').forEach((b, i) => b.classList.toggle('hidden', i !== tabIndex));
+        
+        resetFeedback();
+        updateUI();
+    }
+
+    function updateUI() {
+        const data = patternData[currentIndex];
+        document.getElementById('q-num').innerText = currentIndex + 1;
+        
+        // Act 1
+        document.getElementById('korean-prompt').innerText = data.k;
+        
+        // Act 2
+        document.getElementById('english-question').innerText = data.q;
+        document.getElementById('role-name').innerText = data.hint;
+        
+        // Act 3
+        const scrambleBox = document.getElementById('scramble-box');
+        scrambleBox.innerHTML = '';
+        data.s.forEach(word => {
+            const chip = document.createElement('div');
+            chip.className = 'word-chip';
+            chip.innerText = word;
+            scrambleBox.appendChild(chip);
+        });
+    }
+
+    function highlightWords(spoken) {
+        const words = spoken.toLowerCase().split(' ');
+        document.querySelectorAll('.word-chip').forEach(chip => {
+            if (words.includes(chip.innerText.toLowerCase())) chip.classList.add('active');
+            else chip.classList.remove('active');
+        });
+    }
+
+    function nextQuestion() {
+        if (currentIndex < patternData.length - 1) {
+            currentIndex++;
+            updateUI();
+            resetFeedback();
         }
     }
-    
-    function processResult(text) {
-        document.getElementById('feedback').innerText = `인식됨: "${text}"`;
-        // 정답 비교 로직 생략 (이전 코드와 동일)
+
+    function prevQuestion() {
+        if (currentIndex > 0) {
+            currentIndex--;
+            updateUI();
+            resetFeedback();
+        }
     }
-    
-    function nextQuestion() { currentIndex++; updateUI(); }
-    function prevQuestion() { if(currentIndex>0) currentIndex--; updateUI(); }
-    function updateUI() { 
-        document.getElementById('main-text').innerText = patternData[currentIndex].k;
-        document.getElementById('q-display').innerText = `Question ${currentIndex+1}`;
+
+    function resetFeedback() {
+        document.getElementById('spoken-text').innerText = "마이크를 누르고 말하세요";
+        document.getElementById('score-msg').innerText = "";
+        document.getElementById('mic-btn').classList.remove('recording', 'processing');
     }
-    
-    window.onload = updateUI;
 </script>
 
 </body>
