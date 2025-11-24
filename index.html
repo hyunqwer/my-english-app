@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>English Pattern Practice: My name is...</title>
+    <style>
+        :root {
+            --primary: #4f46e5;
+            --secondary: #818cf8;
+            --success: #22c55e;
+            --error: #ef4444;
+            --bg: #f3f4f6;
+            --card-bg: #ffffff;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            margin: 0;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 90%;
+            max-width: 600px;
+            background-color: var(--card-bg);
+            border-radius: 16px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        /* Tabs */
+        .tabs {
+            display: flex;
+            background-color: #e0e7ff;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 15px;
+            text-align: center;
+            cursor: pointer;
+            font-weight: 600;
+            color: #4b5563;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab.active {
+            background-color: var(--card-bg);
+            color: var(--primary);
+            border-bottom: 3px solid var(--primary);
+        }
+
+        /* Content Area */
+        .content {
+            padding: 30px;
+            text-align: center;
+            min-height: 300px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+
+        .header-info {
+            font-size: 0.9rem;
+            color: #6b7280;
+            margin-bottom: 10px;
+        }
+
+        .question-box {
+            margin: 20px 0;
+        }
+
+        .main-text {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #1f2937;
+            margin-bottom: 10px;
+        }
+
+        .sub-text {
+            font-size: 1.1rem;
+            color: #6b7280;
+        }
+
+        /* Activity Specific Styles */
+        .scramble-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .word-chip {
+            background-color: #e5e7eb;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 1rem;
+            transition: all 0.3s;
+        }
+
+        .word-chip.active {
+            background-color: var(--primary);
+            color: white;
+            transform: translateY(-3px);
+        }
+
+        /* Controls */
+        .controls {
+            margin-top: 30px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .mic-btn {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            background-color: var(--primary);
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            box-shadow: 0 4px 6px rgba(79, 70, 229, 0.4);
+            transition: transform 0.2s, background-color 0.2s;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .mic-btn:active {
+            transform: scale(0.95);
+        }
+
+        .mic-btn.listening {
+            background-color: var(--error);
+            animation: pulse 1.5s infinite;
+        }
+
+        @keyframes pulse {
+            0% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7); }
+            70% { box-shadow: 0 0 0 15px rgba(239, 68, 68, 0); }
+            100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+        }
+
+        .feedback-area {
+            min-height: 60px;
+            font-size: 1.1rem;
+            margin-top: 10px;
+        }
+
+        .result-text {
+            margin-bottom: 5px;
+        }
+
+        .match-high { color: var(--success); font-weight: bold; }
+        .match-low { color: var(--error); }
+
+        .nav-btn {
+            background-color: transparent;
+            border: 1px solid #d1d5db;
+            padding: 8px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            color: #4b5563;
+        }
+        
+        .nav-btn:hover { background-color: #f3f4f6; }
+
+        .hidden { display: none; }
+
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- Navigation Tabs -->
+    <div class="tabs">
+        <div class="tab active" onclick="switchTab(0)">1. 실시간 통역</div>
+        <div class="tab" onclick="switchTab(1)">2. AI 인터뷰</div>
+        <div class="tab" onclick="switchTab(2)">3. 음성 퍼즐</div>
+    </div>
+
+    <!-- Content -->
+    <div class="content">
+        <div>
+            <div class="header-info">Question <span id="q-num">1</span>/10</div>
+            
+            <!-- Activity 1: Instant Interpretation -->
+            <div id="act-1" class="activity-box">
+                <div class="main-text" id="korean-prompt">내 이름은 Jade야</div>
+                <div class="sub-text">영어로 말해보세요!</div>
+            </div>
+
+            <!-- Activity 2: AI Role-play -->
+            <div id="act-2" class="activity-box hidden">
+                <div class="sub-text">AI: <span id="english-question">What's your name?</span></div>
+                <div class="main-text" style="margin-top: 20px;">이름: <span id="role-name" style="color:var(--primary)">Jade</span></div>
+                <div class="sub-text" style="font-size: 0.9rem; margin-top:10px;">위 이름을 넣어 전체 문장으로 답하세요.</div>
+            </div>
+
+            <!-- Activity 3: Voice Unscramble -->
+            <div id="act-3" class="activity-box hidden">
+                <div class="sub-text">단어를 순서대로 말하여 문장을 완성하세요</div>
+                <div class="scramble-container" id="scramble-box">
+                    <!-- Word chips will go here -->
+                </div>
+            </div>
+        </div>
+
+        <!-- Feedback & Controls -->
+        <div class="controls">
+            <div class="feedback-area" id="feedback">
+                <div class="result-text" id="spoken-text">마이크 버튼을 누르고 말하세요.</div>
+                <div id="score-msg"></div>
+            </div>
+
+            <button class="mic-btn" id="mic-btn" onclick="toggleListening()">
+                🎤
+            </button>
+
+            <div style="display: flex; gap: 10px;">
+                <button class="nav-btn" onclick="prevQuestion()">이전</button>
+                <button class="nav-btn" onclick="nextQuestion()">다음</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // --- Data Source ---
+    const patternData = [
+        { q: "What's your name?", k: "내 이름은 Jade야", a: "My name is Jade.", s: ["My", "is", "name", "Jade"], hint: "Jade" },
+        { q: "Tell me your name", k: "내 이름은 Suzie야", a: "My name is Suzie.", s: ["My", "name", "is", "Suzie"], hint: "Suzie" },
+        { q: "Can you introduce yourself?", k: "내 이름은 Hyunju야", a: "My name is Hyunju.", s: ["My", "is", "name", "Hyunju"], hint: "Hyunju" },
+        { q: "Who are you?", k: "내 이름은 Dongin야", a: "My name is Dongin.", s: ["My", "name", "is", "Dongin"], hint: "Dongin" },
+        { q: "What should I call you?", k: "내 이름은 Tony야", a: "My name is Tony.", s: ["My", "name", "is", "Tony"], hint: "Tony" },
+        { q: "What your English name?", k: "내 이름은 Sally야", a: "My name is Sally.", s: ["My", "is", "name", "Sally"], hint: "Sally" },
+        { q: "Please tell me your name", k: "내 이름은 Jinho야", a: "My name is Jinho.", s: ["My", "name", "is", "Jinho"], hint: "Jinho" },
+        { q: "Your name, please?", k: "내 이름은 Minji야", a: "My name is Minji.", s: ["My", "name", "is", "Minji"], hint: "Minji" },
+        { q: "What do people call you?", k: "내 이름은 Andy야", a: "My name is Andy.", s: ["My", "name", "is", "Andy"], hint: "Andy" },
+        { q: "May I know your name?", k: "내 이름은 Jimin야", a: "My name is Jimin.", s: ["My", "name", "is", "Jimin"], hint: "Jimin" }
+    ];
+
+    // --- State ---
+    let currentTab = 0;
+    let currentIndex = 0;
+    let isListening = false;
+    let recognition;
+
+    // --- Initialization ---
+    window.onload = function() {
+        initSpeech();
+        updateUI();
+    };
+
+    // --- Speech Recognition Setup ---
+    function initSpeech() {
+        if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+            const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+            recognition = new SpeechRecognition();
+            recognition.lang = 'en-US';
+            recognition.interimResults = false;
+            recognition.maxAlternatives = 1;
+
+            recognition.onstart = () => {
+                isListening = true;
+                document.getElementById('mic-btn').classList.add('listening');
+                document.getElementById('spoken-text').innerHTML = "듣고 있어요...";
+                document.getElementById('score-msg').innerHTML = "";
+            };
+
+            recognition.onend = () => {
+                isListening = false;
+                document.getElementById('mic-btn').classList.remove('listening');
+            };
+
+            recognition.onresult = (event) => {
+                const transcript = event.results[0][0].transcript;
+                processResult(transcript);
+            };
+
+            recognition.onerror = (event) => {
+                document.getElementById('spoken-text').innerHTML = "오류가 발생했습니다. 다시 시도해주세요.";
+                isListening = false;
+                document.getElementById('mic-btn').classList.remove('listening');
+            };
+        } else {
+            alert("이 브라우저는 음성 인식을 지원하지 않습니다. Chrome 브라우저를 사용해주세요.");
+        }
+    }
+
+    function toggleListening() {
+        if (isListening) {
+            recognition.stop();
+        } else {
+            recognition.start();
+            // If in Activity 2, AI speaks first? No, let's keep it simple: User presses mic to answer.
+        }
+    }
+
+    // --- Core Logic ---
+    function processResult(spoken) {
+        const target = patternData[currentIndex].a;
+        const cleanSpoken = normalizeText(spoken);
+        const cleanTarget = normalizeText(target);
+        
+        document.getElementById('spoken-text').innerHTML = `"${spoken}"`;
+
+        let isCorrect = false;
+        let feedbackMsg = "";
+
+        if (currentTab === 0) { // Interpretation
+            isCorrect = cleanSpoken === cleanTarget;
+            feedbackMsg = isCorrect ? "Excellent! 정확합니다." : `정답: ${target}`;
+        } else if (currentTab === 1) { // Role-play
+            // Must contain "my name is" and the specific name
+            const hasPattern = cleanSpoken.includes("my name is");
+            const hasName = cleanSpoken.includes(patternData[currentIndex].hint.toLowerCase());
+            isCorrect = hasPattern && hasName;
+            feedbackMsg = isCorrect ? "Great Interview!" : `패턴과 이름(${patternData[currentIndex].hint})을 모두 말해주세요.`;
+        } else if (currentTab === 2) { // Unscramble
+            isCorrect = cleanSpoken === cleanTarget;
+            feedbackMsg = isCorrect ? "Puzzle Solved!" : "순서가 맞지 않아요.";
+            
+            // Visual feedback for Unscramble
+            highlightWords(spoken);
+        }
+
+        const scoreEl = document.getElementById('score-msg');
+        scoreEl.innerHTML = feedbackMsg;
+        scoreEl.className = isCorrect ? "match-high" : "match-low";
+
+        if (isCorrect) {
+            // Visual celebration
+            document.querySelector('.mic-btn').style.backgroundColor = "var(--success)";
+            setTimeout(() => {
+                document.querySelector('.mic-btn').style.backgroundColor = "var(--primary)";
+            }, 1000);
+        }
+    }
+
+    function normalizeText(text) {
+        return text.toLowerCase().replace(/[.,?!]/g, "").trim();
+    }
+
+    // --- UI Updates ---
+    function switchTab(tabIndex) {
+        currentTab = tabIndex;
+        document.querySelectorAll('.tab').forEach((t, i) => {
+            t.classList.toggle('active', i === tabIndex);
+        });
+        document.querySelectorAll('.activity-box').forEach((b, i) => {
+            b.classList.toggle('hidden', i !== tabIndex);
+        });
+
+        // Reset feedback
+        document.getElementById('spoken-text').innerHTML = "마이크 버튼을 누르고 말하세요.";
+        document.getElementById('score-msg').innerHTML = "";
+        
+        updateUI();
+
+        // Special logic for Role-play: Speak the question automatically?
+        // Optional: if (currentTab === 1) speakQuestion();
+    }
+
+    function updateUI() {
+        const data = patternData[currentIndex];
+        document.getElementById('q-num').innerText = currentIndex + 1;
+
+        // Activity 1
+        document.getElementById('korean-prompt').innerText = data.k;
+
+        // Activity 2
+        document.getElementById('english-question').innerText = data.q;
+        document.getElementById('role-name').innerText = data.hint;
+
+        // Activity 3
+        const scrambleBox = document.getElementById('scramble-box');
+        scrambleBox.innerHTML = '';
+        data.s.forEach(word => {
+            const chip = document.createElement('div');
+            chip.className = 'word-chip';
+            chip.innerText = word;
+            scrambleBox.appendChild(chip);
+        });
+    }
+
+    function highlightWords(spoken) {
+        const words = spoken.toLowerCase().split(' ');
+        const chips = document.querySelectorAll('.word-chip');
+        
+        chips.forEach(chip => {
+            if (words.includes(chip.innerText.toLowerCase())) {
+                chip.classList.add('active');
+            } else {
+                chip.classList.remove('active');
+            }
+        });
+    }
+
+    function speakQuestion() {
+        const msg = new SpeechSynthesisUtterance(patternData[currentIndex].q);
+        msg.lang = 'en-US';
+        window.speechSynthesis.speak(msg);
+    }
+
+    function nextQuestion() {
+        if (currentIndex < patternData.length - 1) {
+            currentIndex++;
+            updateUI();
+            resetFeedback();
+            if (currentTab === 1) speakQuestion(); // AI reads question in mode 2
+        }
+    }
+
+    function prevQuestion() {
+        if (currentIndex > 0) {
+            currentIndex--;
+            updateUI();
+            resetFeedback();
+            if (currentTab === 1) speakQuestion();
+        }
+    }
+
+    function resetFeedback() {
+        document.getElementById('spoken-text').innerHTML = "마이크 버튼을 누르고 말하세요.";
+        document.getElementById('score-msg').innerHTML = "";
+        document.querySelector('.mic-btn').style.backgroundColor = "var(--primary)";
+    }
+
+</script>
+
+</body>
+</html>
