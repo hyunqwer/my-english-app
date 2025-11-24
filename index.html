@@ -1,3 +1,20 @@
+요청하신 대로 **상단에 드롭다운(Select Box) 메뉴**를 배치하여 책과 패턴을 즉시 변경할 수 있는 UI로 전면 수정했습니다.
+
+이제 화면 이동 없이 상단 메뉴에서 책을 바꾸면 데이터가 로드되고, 패턴을 바꾸면 즉시 문제가 바뀝니다.
+
+### 1. 파일 구조 (기존과 동일)
+```text
+my-english-app/
+├── index.html       (아래 코드로 교체)
+├── book1.json       (데이터 파일)
+├── book2.json       (데이터 파일)
+└── api/
+    └── proxy.js     (Vercel 백엔드)
+```
+
+### 2. 수정된 `index.html` 코드
+
+```html
 <!DOCTYPE html>
 <html lang="ko">
 <head>
@@ -14,6 +31,7 @@
             --card-bg: #ffffff;
             --text-main: #111;
             --text-sub: #666;
+            --border: #eaeaea;
         }
 
         body {
@@ -36,84 +54,61 @@
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            border: 1px solid #eaeaea;
-            height: 700px; /* 고정 높이로 변경하여 UI 안정성 확보 */
+            border: 1px solid var(--border);
+            height: 700px;
             position: relative;
         }
 
-        /* --- Navigation Header --- */
-        .nav-header {
+        /* --- Top Control Bar (Dropdowns) --- */
+        .control-bar {
+            background-color: #fff;
             padding: 15px;
-            border-bottom: 1px solid #eaeaea;
+            border-bottom: 1px solid var(--border);
             display: flex;
-            align-items: center;
-            background: #fff;
+            flex-direction: column;
+            gap: 10px;
             z-index: 10;
         }
 
-        .back-btn {
-            background: none;
-            border: none;
-            font-size: 1.2rem;
-            cursor: pointer;
-            padding: 5px 10px;
-            margin-right: 10px;
-            color: var(--text-main);
-        }
-        .back-btn:hover { background-color: #f5f5f5; border-radius: 5px; }
-
-        .nav-title { font-weight: 700; font-size: 1.1rem; flex-grow: 1; text-align: center; }
-
-        /* --- Menu Screens --- */
-        .menu-screen {
-            padding: 20px;
-            overflow-y: auto;
-            height: 100%;
-        }
-
-        .grid-container {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
-            gap: 15px;
-            padding-bottom: 20px;
-        }
-
-        .menu-card {
-            background: white;
-            border: 1px solid #eaeaea;
-            border-radius: 8px;
-            padding: 20px;
-            text-align: center;
-            cursor: pointer;
-            transition: all 0.2s;
+        .select-group {
             display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            height: 100px;
+            gap: 10px;
         }
 
-        .menu-card:hover {
-            border-color: var(--accent);
-            box-shadow: 0 4px 12px rgba(0, 112, 243, 0.15);
-            transform: translateY(-2px);
+        select {
+            flex: 1;
+            padding: 10px;
+            font-size: 0.95rem;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            background-color: #fff;
+            cursor: pointer;
+            outline: none;
         }
 
-        .menu-card h3 { margin: 0 0 5px 0; font-size: 1rem; }
-        .menu-card p { margin: 0; font-size: 0.8rem; color: #888; }
+        select:focus { border-color: var(--accent); }
 
-        /* --- Game UI --- */
-        .game-screen { display: none; flex-direction: column; height: 100%; }
+        /* --- Game Area --- */
+        .game-screen { display: flex; flex-direction: column; height: 100%; flex-grow: 1; }
         
-        .tabs { display: flex; border-bottom: 1px solid #eaeaea; background: #fff; }
+        .tabs { display: flex; border-bottom: 1px solid var(--border); background: #fff; }
         .tab {
-            flex: 1; padding: 16px; text-align: center; cursor: pointer;
+            flex: 1; padding: 14px; text-align: center; cursor: pointer;
             font-weight: 500; color: var(--text-sub); transition: all 0.2s; font-size: 0.9rem;
         }
         .tab.active { color: var(--text-main); font-weight: 700; border-bottom: 2px solid var(--text-main); }
 
-        .content { padding: 30px 20px; text-align: center; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; overflow-y: auto; }
-        .main-text { font-size: 1.8rem; font-weight: 800; margin: 20px 0; line-height: 1.3; }
+        .content { 
+            padding: 20px; 
+            text-align: center; 
+            flex-grow: 1; 
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between; 
+            overflow-y: auto; 
+        }
+
+        .main-text { font-size: 1.6rem; font-weight: 800; margin: 20px 0; line-height: 1.3; }
         .sub-text { font-size: 1rem; color: var(--text-sub); }
         .highlight { color: var(--success); font-weight: bold; }
 
@@ -121,7 +116,7 @@
         .word-chip { background-color: #f0f0f0; padding: 8px 16px; border-radius: 20px; font-size: 1rem; transition: all 0.2s; }
         .word-chip.active { background-color: var(--success); color: white; transform: scale(1.05); }
 
-        .controls { margin-top: 20px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
+        .controls { margin-top: 10px; display: flex; flex-direction: column; align-items: center; gap: 15px; }
         .mic-btn {
             width: 72px; height: 72px; border-radius: 50%; background-color: var(--primary);
             border: none; color: white; font-size: 28px; cursor: pointer; transition: all 0.2s;
@@ -131,13 +126,13 @@
         .mic-btn.processing { background-color: #888; cursor: wait; }
         @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(224, 0, 0, 0.4); } 70% { box-shadow: 0 0 0 15px transparent; } }
 
-        .feedback-area { min-height: 50px; text-align: center; }
+        .feedback-area { min-height: 40px; text-align: center; }
         .score-msg { font-weight: bold; margin-top: 5px; }
         .match-success { color: var(--success); }
         .match-fail { color: var(--error); }
 
         .nav-group { display: flex; gap: 12px; }
-        .nav-btn { background: white; border: 1px solid #eaeaea; padding: 8px 24px; border-radius: 6px; cursor: pointer; }
+        .nav-btn { background: white; border: 1px solid var(--border); padding: 8px 24px; border-radius: 6px; cursor: pointer; }
         .nav-btn:hover { border-color: #000; }
         
         .hidden { display: none !important; }
@@ -149,8 +144,8 @@
         /* Loading Overlay */
         .loading-overlay {
             position: absolute; top:0; left:0; width:100%; height:100%;
-            background: rgba(255,255,255,0.8); display: flex; justify-content: center; align-items: center;
-            z-index: 50; font-weight: bold; color: #666;
+            background: rgba(255,255,255,0.9); display: flex; justify-content: center; align-items: center;
+            z-index: 50; font-weight: bold; color: #666; flex-direction: column; gap: 10px;
         }
 
     </style>
@@ -158,27 +153,25 @@
 <body>
 
 <div class="container">
-    <!-- Header -->
-    <div class="nav-header">
-        <button class="back-btn hidden" id="global-back-btn">←</button>
-        <div class="nav-title" id="page-title">Select Book</div>
-    </div>
-
     <!-- Loading Indicator -->
-    <div id="loading-screen" class="loading-overlay hidden">Loading...</div>
-
-    <!-- 1. Book Selection Screen -->
-    <div id="screen-books" class="menu-screen">
-        <div class="grid-container" id="book-list"></div>
+    <div id="loading-screen" class="loading-overlay hidden">
+        <div class="spinner" style="border-color:#333; border-top-color:transparent; display:block;"></div>
+        <span id="loading-text">Loading...</span>
     </div>
 
-    <!-- 2. Pattern Selection Screen -->
-    <div id="screen-patterns" class="menu-screen hidden">
-        <div class="grid-container" id="pattern-list"></div>
+    <!-- Top Control Bar -->
+    <div class="control-bar">
+        <select id="book-select" onchange="handleBookChange()">
+            <!-- Book Options Injected Here -->
+        </select>
+        <select id="pattern-select" onchange="handlePatternChange()">
+            <option>Select a Book First</option>
+            <!-- Pattern Options Injected Here -->
+        </select>
     </div>
 
-    <!-- 3. Game Screen -->
-    <div id="screen-game" class="game-screen hidden">
+    <!-- Game Screen -->
+    <div id="screen-game" class="game-screen">
         <div class="tabs">
             <div class="tab active" onclick="switchTab(0)">1. 실시간 통역</div>
             <div class="tab" onclick="switchTab(1)">2. AI 인터뷰</div>
@@ -187,26 +180,29 @@
 
         <div class="content">
             <div>
-                <div class="header-info" style="color:#888; font-size:0.9rem; margin-bottom:10px;">
+                <div class="header-info" style="color:#888; font-size:0.85rem; margin-bottom:10px;">
                     Question <span id="q-num">1</span> / 10
                 </div>
                 
+                <!-- Activity 1 -->
                 <div id="act-1" class="activity-box">
                     <div class="main-text" id="korean-prompt"></div>
                     <div class="sub-text">영어로 말해보세요.</div>
                 </div>
 
+                <!-- Activity 2 -->
                 <div id="act-2" class="activity-box hidden">
                     <div class="sub-text">
                         AI: <span id="english-question" style="font-weight: 600; color:#333;"></span>
                         <button onclick="speakQuestion()" style="border:none; background:none; cursor:pointer">🔊</button>
                     </div>
-                    <div class="main-text" style="margin-top: 30px;">
+                    <div class="main-text" style="margin-top: 20px;">
                         Hint: <span id="role-name" class="highlight"></span>
                     </div>
                     <div class="sub-text" style="font-size: 0.9rem;">위 힌트를 넣어 전체 문장으로 답하세요.</div>
                 </div>
 
+                <!-- Activity 3 -->
                 <div id="act-3" class="activity-box hidden">
                     <div class="sub-text">순서대로 말하여 문장을 완성하세요</div>
                     <div class="scramble-container" id="scramble-box"></div>
@@ -235,21 +231,19 @@
 
 <script>
     // ==========================================
-    // 1. CONFIGURATION (여기에 JSON 파일을 등록하세요)
+    // 1. CONFIGURATION (JSON 파일 등록)
     // ==========================================
     const availableBooks = [
-        { name: "Book 1", file: "book1.json" },
-        { name: "Book 2", file: "book2.json" },
-        // { name: "Book 3: Advanced", file: "book3.json" }  <-- 파일이 있으면 추가
+        { name: "Book 1: Basic Patterns", file: "book1.json" },
+        { name: "Book 2: Intermediate", file: "book2.json" }
+        // 추가 파일이 있다면 여기에 계속 추가
     ];
 
     // ==========================================
     // 2. STATE MANAGEMENT
     // ==========================================
-    let currentBookData = null; // Loaded JSON data
-    let currentPattern = null;
+    let currentBookData = null; 
     let currentQuestions = [];
-    let currentBookName = "";
     
     let currentTab = 0;
     let currentIndex = 0;
@@ -258,39 +252,41 @@
     let audioChunks = [];
 
     // ==========================================
-    // 3. INITIALIZATION & NAVIGATION
+    // 3. INITIALIZATION & DROPDOWN LOGIC
     // ==========================================
     window.onload = function() {
-        renderBookList();
+        initBookDropdown();
     };
 
-    function renderBookList() {
-        const list = document.getElementById('book-list');
-        list.innerHTML = '';
+    function initBookDropdown() {
+        const bookSelect = document.getElementById('book-select');
+        bookSelect.innerHTML = '';
         
-        availableBooks.forEach(book => {
-            const card = document.createElement('div');
-            card.className = 'menu-card';
-            card.innerHTML = `<h3>${book.name}</h3><p>Click to Load</p>`;
-            card.onclick = () => loadBook(book);
-            list.appendChild(card);
+        availableBooks.forEach((book, index) => {
+            const option = document.createElement('option');
+            option.value = index; // Use index to reference availableBooks array
+            option.text = book.name;
+            bookSelect.appendChild(option);
         });
 
-        showScreen('screen-books', 'Select Book');
-        document.getElementById('global-back-btn').classList.add('hidden');
+        // Automatically load the first book
+        handleBookChange();
     }
 
-    async function loadBook(bookConfig) {
+    async function handleBookChange() {
+        const bookIndex = document.getElementById('book-select').value;
+        const selectedBook = availableBooks[bookIndex];
+        
         showLoading(true);
         try {
-            // JSON 파일 Fetch
-            const response = await fetch(bookConfig.file);
-            if (!response.ok) throw new Error(`Failed to load ${bookConfig.file}`);
+            const response = await fetch(selectedBook.file);
+            if (!response.ok) throw new Error(`Failed to load ${selectedBook.file}`);
             
             currentBookData = await response.json();
-            currentBookName = bookConfig.name;
             
-            renderPatternList();
+            // Populate Pattern Dropdown
+            populatePatternDropdown();
+            
         } catch (error) {
             alert("Error loading book: " + error.message + "\n(서버 환경에서 실행 중인지 확인하세요)");
         } finally {
@@ -298,48 +294,33 @@
         }
     }
 
-    function renderPatternList() {
-        const list = document.getElementById('pattern-list');
-        list.innerHTML = '';
-        
+    function populatePatternDropdown() {
+        const patternSelect = document.getElementById('pattern-select');
+        patternSelect.innerHTML = '';
+
         currentBookData.forEach((pattern, index) => {
-            const card = document.createElement('div');
-            card.className = 'menu-card';
-            card.innerHTML = `<h3>Pattern ${pattern.number}</h3><p>${pattern.name}</p>`;
-            card.onclick = () => selectPattern(index);
-            list.appendChild(card);
+            const option = document.createElement('option');
+            option.value = index;
+            option.text = `Pattern ${pattern.number}: ${pattern.name}`;
+            patternSelect.appendChild(option);
         });
 
-        showScreen('screen-patterns', `${currentBookName}`);
-        
-        // Back Button Logic
-        const backBtn = document.getElementById('global-back-btn');
-        backBtn.classList.remove('hidden');
-        backBtn.onclick = renderBookList;
+        // Automatically select the first pattern
+        handlePatternChange();
     }
 
-    function selectPattern(index) {
-        currentPattern = currentBookData[index];
-        mapDataToGameFormat(currentPattern);
+    function handlePatternChange() {
+        const patternIndex = document.getElementById('pattern-select').value;
+        const selectedPattern = currentBookData[patternIndex];
         
+        // Map data and reset game
+        mapDataToGameFormat(selectedPattern);
         currentIndex = 0;
         currentTab = 0;
         switchTab(0);
         updateGameUI();
-        
-        showScreen('screen-game', `Pattern ${currentPattern.number}`);
-        
-        // Back Button Logic
-        const backBtn = document.getElementById('global-back-btn');
-        backBtn.onclick = renderPatternList;
     }
 
-    function showScreen(screenId, title) {
-        document.querySelectorAll('.menu-screen, .game-screen').forEach(el => el.classList.add('hidden'));
-        document.getElementById(screenId).classList.remove('hidden');
-        document.getElementById('page-title').innerText = title;
-    }
-    
     function showLoading(isLoading) {
         const loader = document.getElementById('loading-screen');
         if(isLoading) loader.classList.remove('hidden');
@@ -347,7 +328,7 @@
     }
 
     // ==========================================
-    // 4. DATA MAPPING (JSON -> Game Format)
+    // 4. DATA MAPPING
     // ==========================================
     function mapDataToGameFormat(patternObj) {
         const sec1 = patternObj.sections["Speaking I"];
@@ -359,7 +340,6 @@
         for(let i=0; i < 10; i++) {
             if (!sec1[i] || !sec2[i] || !sec3[i]) break;
             
-            // Handle potential scrambled string format differences
             let scrambleArray = [];
             if (sec3[i].scrambled) {
                 scrambleArray = sec3[i].scrambled.includes('/') 
@@ -553,3 +533,4 @@
 
 </body>
 </html>
+```
