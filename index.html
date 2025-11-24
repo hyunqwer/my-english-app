@@ -130,7 +130,21 @@
             background: rgba(255,255,255,0.9); display: flex; justify-content: center; align-items: center;
             z-index: 50; font-weight: bold; color: #666; flex-direction: column; gap: 10px;
         }
-
+/* --- Diff Highlight Styles --- */
+.diff-correct {
+    color: var(--success);
+    font-weight: 600;
+}
+.diff-wrong {
+    color: var(--error);
+    margin-right: 4px;
+}
+.diff-target {
+    color: #999;
+    font-size: 0.9em;
+    margin-left: 2px;
+}
+        
     </style>
 </head>
 <body>
@@ -421,33 +435,7 @@
         }
     }
 
-    function processResult(spoken) {
-        const target = currentQuestions[currentIndex].a;
-        const cleanSpoken = normalizeText(spoken);
-        const cleanTarget = normalizeText(target);
-        
-        document.getElementById('spoken-text').innerText = `"${spoken}"`;
-        let isCorrect = false;
-        let msg = "";
-
-        if (currentTab === 0) {
-            isCorrect = cleanSpoken === cleanTarget;
-            msg = isCorrect ? "Excellent! 🎉" : `정답: ${target}`;
-        } else if (currentTab === 1) {
-            const hint = currentQuestions[currentIndex].hint.toLowerCase();
-            isCorrect = cleanSpoken.includes(hint); 
-            msg = isCorrect ? "Good Interview! 🎤" : `힌트(${currentQuestions[currentIndex].hint})를 포함하세요.`;
-        } else if (currentTab === 2) {
-            isCorrect = cleanSpoken === cleanTarget;
-            msg = isCorrect ? "Puzzle Solved! 🧩" : "순서가 틀렸어요.";
-            highlightWords(spoken);
-        }
-
-        const scoreEl = document.getElementById('score-msg');
-        scoreEl.innerText = msg;
-        scoreEl.className = "score-msg " + (isCorrect ? "match-success" : "match-fail");
-    }
-
+undefined
     function normalizeText(text) {
         return text.toLowerCase().replace(/[.,?!]/g, "").trim();
     }
