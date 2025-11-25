@@ -4,22 +4,22 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI English Pattern Drill</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;800&family=Noto+Sans+KR:wght@400;700&display=swap" rel="stylesheet">
     <style>
         :root {
-            --primary: #000000;
-            --accent: #0070f3;
-            --success: #0070f3;
-            --error: #e00;
-            --bg: #fafafa;
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-bg: #f3f4f6;
             --card-bg: #ffffff;
-            --text-main: #111;
-            --text-sub: #666;
-            --border: #eaeaea;
+            --text-main: #2d3748;
+            --text-sub: #718096;
+            --success: #48bb78;
+            --error: #f56565;
+            --accent: #667eea;
         }
-
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: var(--bg);
+            font-family: 'Poppins', 'Noto Sans KR', sans-serif;
+            background: linear-gradient(to right, #e0eafc, #cfdef3);
             margin: 0;
             display: flex;
             justify-content: center;
@@ -27,196 +27,126 @@
             min-height: 100vh;
             color: var(--text-main);
         }
-
         .container {
             width: 90%;
-            max-width: 600px;
+            max-width: 500px;
             background-color: var(--card-bg);
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+            border-radius: 24px;
+            box-shadow: 0 10px 24px rgba(102, 126, 234, 0.13);
             overflow: hidden;
             display: flex;
             flex-direction: column;
-            border: 1px solid var(--border);
-            height: 700px;
+            height: 800px;
             position: relative;
         }
-
-        /* --- Top Control Bar (Dropdowns) --- */
         .control-bar {
-            background-color: #fff;
-            padding: 15px;
-            border-bottom: 1px solid var(--border);
+            background: white;
+            padding: 20px;
             display: flex;
             flex-direction: column;
-            gap: 10px;
-            z-index: 10;
+            gap: 12px;
+            border-bottom: 1px solid #edf2f7;
         }
-
-        .select-group {
-            display: flex;
-            gap: 10px;
-        }
-
+        .select-wrapper { position: relative; }
         select {
-            flex: 1;
-            padding: 10px;
-            font-size: 0.95rem;
-            border: 1px solid #ddd;
-            border-radius: 6px;
-            background-color: #fff;
-            cursor: pointer;
-            outline: none;
+            width: 100%; padding: 12px 16px; font-size: 0.95rem; font-family: inherit;
+            border: 2px solid #e2e8f0; border-radius: 12px; background: #fff; cursor: pointer;
+            color: var(--text-main); font-weight: 600; appearance: none;
+            background-image: url("data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%22292.4%22%20height%3D%22292.4%22%3E%3Cpath%20fill%3D%22%23667eea%22%20d%3D%22M287%2069.4a17.6%2017.6%200%200%200-13-5.4H18.4c-5%200-9.3%201.8-12.9%205.4A17.6%2017.6%200%200%200%200%2082.2c0%205%201.8%209.3%205.4%2012.9l128%20127.9c3.6%203.6%207.8%205.4%2012.8%205.4s9.2-1.8%2012.8-5.4L287%2095c3.5-3.5%205.4-7.8%205.4-12.8%200-5-1.9-9.2-5.5-12.8z%22%2F%3E%3C%2Fsvg%3E");
+            background-repeat: no-repeat; background-position: right 1rem center; background-size: 0.65em auto;
+            transition: border-color 0.3s;
         }
-
         select:focus { border-color: var(--accent); }
-
-        /* --- Game Area --- */
-        .game-screen { display: flex; flex-direction: column; height: 100%; flex-grow: 1; }
-        
-        .tabs { display: flex; border-bottom: 1px solid var(--border); background: #fff; }
-        .tab {
-            flex: 1; padding: 14px; text-align: center; cursor: pointer;
-            font-weight: 500; color: var(--text-sub); transition: all 0.2s; font-size: 0.9rem;
-        }
-        .tab.active { color: var(--text-main); font-weight: 700; border-bottom: 2px solid var(--text-main); }
-
-        .content { 
-            padding: 20px; 
-            text-align: center; 
-            flex-grow: 1; 
-            display: flex; 
-            flex-direction: column; 
-            justify-content: space-between; 
-            overflow-y: auto; 
-        }
-
-        .main-text { font-size: 1.6rem; font-weight: 800; margin: 20px 0; line-height: 1.3; }
-        .sub-text { font-size: 1rem; color: var(--text-sub); }
-        .highlight { color: var(--success); font-weight: bold; }
-
-        .scramble-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; margin-top: 20px; }
-        .word-chip { background-color: #f0f0f0; padding: 8px 16px; border-radius: 20px; font-size: 1rem; transition: all 0.2s; }
-        .word-chip.active { background-color: var(--success); color: white; transform: scale(1.05); }
-
-        .controls { margin-top: 10px; display: flex; flex-direction: column; align-items: center; gap: 15px; }
-        .mic-btn {
-            width: 72px; height: 72px; border-radius: 50%; background-color: var(--primary);
-            border: none; color: white; font-size: 28px; cursor: pointer; transition: all 0.2s;
-            display: flex; align-items: center; justify-content: center; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
-        }
-        .mic-btn.recording { background-color: var(--error); animation: pulse 1.5s infinite; }
-        .mic-btn.processing { background-color: #888; cursor: wait; }
-        @keyframes pulse { 0% { box-shadow: 0 0 0 0 rgba(224, 0, 0, 0.4); } 70% { box-shadow: 0 0 0 15px transparent; } }
-
-        .feedback-area { min-height: 40px; text-align: center; }
-        .score-msg { font-weight: bold; margin-top: 5px; }
-        .match-success { color: var(--success); }
-        .match-fail { color: var(--error); }
-
-        .nav-group { display: flex; gap: 12px; }
-        .nav-btn { background: white; border: 1px solid var(--border); padding: 8px 24px; border-radius: 6px; cursor: pointer; }
-        .nav-btn:hover { border-color: #000; }
-        
+        .tabs-container { padding: 10px 20px; background: white; }
+        .tabs { display: flex; background: #edf2f7; padding: 4px; border-radius: 16px; }
+        .tab { flex: 1; padding: 10px; text-align: center; cursor: pointer; font-weight: 600; color: var(--text-sub);
+               border-radius: 12px; font-size: 0.85rem; transition: all 0.3s; }
+        .tab.active { background: white; color: var(--accent); box-shadow: 0 2px 5px rgba(0,0,0,0.05);}
+        .game-screen { display: flex; flex-direction: column; flex-grow: 1; }
+        .content { padding: 20px; text-align: center; flex-grow: 1; display: flex; flex-direction: column; justify-content: space-between; overflow-y: auto;}
+        .header-info { font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px; color: #a0aec0; margin-bottom: 10px; font-weight: 700;}
+        .main-text { font-size: 1.8rem; font-weight: 800; margin: 20px 0; line-height: 1.3; color: #2d3748;}
+        .sub-text { font-size: 1rem; color: var(--text-sub);}
+        .highlight { color: var(--accent); font-weight: bold;}
+        .scramble-container { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; margin-top: 30px;}
+        .word-chip { background:#fff; border: 2px solid #e2e8f0; padding:10px 20px; border-radius:25px; font-size:1rem; font-weight:600; color:var(--text-sub); transition:all 0.2s;}
+        .word-chip.active { background:var(--accent); border-color:var(--accent); color:#fff; transform:translateY(-3px); box-shadow:0 4px 6px rgba(102,126,234,0.2);}
+        .controls { margin-top:10px; display: flex; flex-direction: column; align-items: center; gap: 20px; padding-bottom: 20px;}
+        .feedback-area { background: #f7fafc; border-radius: 16px; padding: 15px 20px; width: 100%; box-sizing: border-box; min-height: 80px; display: flex; flex-direction: column; justify-content: center; align-items: center; border: 1px solid #edf2f7;}
+        #spoken-text { font-size: 1.1rem; font-weight: 500; }
+        .mic-btn { width:80px; height:80px; border-radius:50%; background:var(--primary-gradient); border:none; color:white; font-size:32px; cursor:pointer; transition:transform 0.2s; display:flex; align-items:center; justify-content:center; box-shadow:0 10px 20px rgba(118,75,162,0.2); position:relative;}
+        .mic-btn:active { transform:scale(0.95);}
+        .mic-btn.recording { background:var(--error); box-shadow:0 10px 20px rgba(245,101,101,0.2);}
+        .mic-btn.recording::after { content:''; position:absolute; width:100%; height:100%; border-radius:50%; border:2px solid var(--error); animation:ripple 1.5s infinite;}
+        @keyframes ripple { 0%{ transform:scale(1); opacity:1;} 100%{ transform:scale(1.6); opacity:0;} }
+        .mic-btn.processing { background:#a0aec0; cursor:wait; box-shadow:none;}
+        .nav-group { display: flex; gap: 15px; width: 100%; justify-content: center;}
+        .nav-btn { background:#fff; border:2px solid #e2e8f0; padding:12px 30px; border-radius:12px; cursor:pointer; font-weight:700; color:var(--text-sub); transition:all 0.2s; flex:1; max-width:120px;}
+        .nav-btn:hover { border-color:var(--accent); color:var(--accent);}
+        .diff-correct { color:var(--success); font-weight:700;}
+        .diff-wrong { color:var(--error); font-weight:700; margin-right:4px;}
         .hidden { display: none !important; }
-        .spinner { width: 20px; height: 20px; border: 2px solid #fff; border-top-color: transparent; border-radius: 50%; animation: spin 0.8s linear infinite; display: none; }
-        .mic-btn.processing .spinner { display: block; }
-        .mic-btn.processing span { display: none; }
-        @keyframes spin { to { transform: rotate(360deg); } }
-
-        /* Loading Overlay */
-        .loading-overlay {
-            position: absolute; top:0; left:0; width:100%; height:100%;
-            background: rgba(255,255,255,0.9); display: flex; justify-content: center; align-items: center;
-            z-index: 50; font-weight: bold; color: #666; flex-direction: column; gap: 10px;
-        }
-/* --- Diff Highlight Styles --- */
-.diff-correct {
-    color: var(--success);
-    font-weight: 600;
-}
-.diff-wrong {
-    color: var(--error);
-    margin-right: 4px;
-}
-.diff-target {
-    color: #999;
-    font-size: 0.9em;
-    margin-left: 2px;
-}
-        
+        .spinner { width:24px; height:24px; border:3px solid rgba(255,255,255,0.3); border-radius:50%; border-top-color:#fff; animation:spin 1s ease-in-out infinite; display:none;}
+        .mic-btn.processing .spinner { display:block;}
+        .mic-btn.processing span { display:none;}
+        @keyframes spin { to { transform:rotate(360deg);} }
+        .loading-overlay { position:absolute; top:0; left:0; width:100%; height:100%; background:rgba(255,255,255,0.95); display:flex; justify-content:center; align-items:center; z-index:50; flex-direction:column; gap:15px;}
+        .loading-text { font-weight:700; color:var(--accent); letter-spacing:1px;}
     </style>
 </head>
 <body>
-
 <div class="container">
-    <!-- Loading Indicator -->
     <div id="loading-screen" class="loading-overlay hidden">
-        <div class="spinner" style="border-color:#333; border-top-color:transparent; display:block;"></div>
-        <span id="loading-text">Loading...</span>
+        <div class="spinner" style="border-color:#cbd5e0; border-top-color:var(--accent); display:block; width:40px; height:40px;"></div>
+        <span class="loading-text">LOADING DATA...</span>
     </div>
-
-    <!-- Top Control Bar -->
     <div class="control-bar">
-        <select id="book-select" onchange="handleBookChange()">
-            <!-- Book Options Injected Here -->
-        </select>
-        <select id="pattern-select" onchange="handlePatternChange()">
-            <option>Select a Book First</option>
-            <!-- Pattern Options Injected Here -->
-        </select>
-    </div>
-
-    <!-- Game Screen -->
-    <div id="screen-game" class="game-screen">
-        <div class="tabs">
-            <div class="tab active" onclick="switchTab(0)">1. 실시간 통역</div>
-            <div class="tab" onclick="switchTab(1)">2. AI 인터뷰</div>
-            <div class="tab" onclick="switchTab(2)">3. 음성 퍼즐</div>
+        <div class="select-wrapper">
+            <select id="book-select" onchange="handleBookChange()"></select>
         </div>
-
+        <div class="select-wrapper">
+            <select id="pattern-select" onchange="handlePatternChange()"><option>Select a Book First</option></select>
+        </div>
+    </div>
+    <div id="screen-game" class="game-screen">
+        <div class="tabs-container">
+            <div class="tabs">
+                <div class="tab active" onclick="switchTab(0)">통역 훈련</div>
+                <div class="tab" onclick="switchTab(1)">AI 인터뷰</div>
+                <div class="tab" onclick="switchTab(2)">음성 퍼즐</div>
+            </div>
+        </div>
         <div class="content">
             <div>
-                <div class="header-info" style="color:#888; font-size:0.85rem; margin-bottom:10px;">
-                    Question <span id="q-num">1</span> / 10
-                </div>
-                
-                <!-- Activity 1 -->
+                <div class="header-info">Question <span id="q-num">1</span> / 10</div>
                 <div id="act-1" class="activity-box">
                     <div class="main-text" id="korean-prompt"></div>
-                    <div class="sub-text">영어로 말해보세요.</div>
+                    <div class="sub-text">영어로 말해보세요</div>
                 </div>
-
-                <!-- Activity 2 -->
                 <div id="act-2" class="activity-box hidden">
                     <div class="sub-text">
-                        AI: <span id="english-question" style="font-weight: 600; color:#333;"></span>
-                        <button onclick="speakQuestion()" style="border:none; background:none; cursor:pointer">🔊</button>
+                        AI: <span id="english-question" style="font-weight:600; color:#2d3748;"></span>
+                        <button onclick="speakQuestion()" style="border:none; background:none; cursor:pointer; font-size:1.2rem;">🔊</button>
                     </div>
-                    <div class="main-text" style="margin-top: 20px;">
+                    <div class="main-text" style="margin-top:20px;">
                         Hint: <span id="role-name" class="highlight"></span>
                     </div>
-                    <div class="sub-text" style="font-size: 0.9rem;">위 힌트를 넣어 전체 문장으로 답하세요.</div>
+                    <div class="sub-text">위 힌트를 넣어 답하세요</div>
                 </div>
-
-                <!-- Activity 3 -->
                 <div id="act-3" class="activity-box hidden">
-                    <div class="sub-text">순서대로 말하여 문장을 완성하세요</div>
+                    <div class="sub-text">순서대로 말하여 문장 완성</div>
                     <div class="scramble-container" id="scramble-box"></div>
                 </div>
             </div>
-
             <div class="controls">
                 <div class="feedback-area">
-                    <div id="spoken-text" style="color: #888;">마이크를 누르고 말하세요</div>
+                    <div id="spoken-text" style="color:#a0aec0;">마이크를 누르고 말하세요</div>
                     <div id="score-msg" class="score-msg"></div>
                 </div>
-
                 <button class="mic-btn" id="mic-btn" onclick="toggleRecording()">
-                    <span>🎤</span>
+                    <span>🎙️</span>
                     <div class="spinner"></div>
                 </button>
-
                 <div class="nav-group">
                     <button class="nav-btn" onclick="prevQuestion()">이전</button>
                     <button class="nav-btn" onclick="nextQuestion()">다음</button>
@@ -225,125 +155,70 @@
         </div>
     </div>
 </div>
-
 <script>
-    // ==========================================
-    // 1. CONFIGURATION (JSON 파일 등록)
-    // ==========================================
     const availableBooks = [
-        { name: "Book 1: Basic Patterns", file: "book1.json" },
-        { name: "Book 2: Intermediate", file: "book2.json" }
-        // 추가 파일이 있다면 여기에 계속 추가
+        { name: "📘 Book 1: Basic Patterns", file: "book1.json" },
+        // { name: "📗 Book 2: Intermediate", file: "book2.json" }
     ];
-
-    // ==========================================
-    // 2. STATE MANAGEMENT
-    // ==========================================
-    let currentBookData = null; 
-    let currentQuestions = [];
-    
-    let currentTab = 0;
-    let currentIndex = 0;
-    let isRecording = false;
-    let mediaRecorder;
-    let audioChunks = [];
-
-    // ==========================================
-    // 3. INITIALIZATION & DROPDOWN LOGIC
-    // ==========================================
-    window.onload = function() {
-        initBookDropdown();
-    };
-
+    let currentBookData = null, currentQuestions = [], currentTab = 0, currentIndex = 0, isRecording = false, mediaRecorder, audioChunks = [];
+    window.onload = function() { initBookDropdown(); };
     function initBookDropdown() {
         const bookSelect = document.getElementById('book-select');
         bookSelect.innerHTML = '';
-        
         availableBooks.forEach((book, index) => {
             const option = document.createElement('option');
-            option.value = index; // Use index to reference availableBooks array
-            option.text = book.name;
+            option.value = index; option.text = book.name;
             bookSelect.appendChild(option);
         });
-
-        // Automatically load the first book
         handleBookChange();
     }
-
     async function handleBookChange() {
         const bookIndex = document.getElementById('book-select').value;
         const selectedBook = availableBooks[bookIndex];
-        
         showLoading(true);
         try {
             const response = await fetch(selectedBook.file);
             if (!response.ok) throw new Error(`Failed to load ${selectedBook.file}`);
-            
             currentBookData = await response.json();
-            
-            // Populate Pattern Dropdown
             populatePatternDropdown();
-            
-        } catch (error) {
-            alert("Error loading book: " + error.message + "\n(서버 환경에서 실행 중인지 확인하세요)");
-        } finally {
-            showLoading(false);
-        }
+        } catch (e) { alert("Error: " + e.message); }
+        finally { showLoading(false); }
     }
-
     function populatePatternDropdown() {
         const patternSelect = document.getElementById('pattern-select');
         patternSelect.innerHTML = '';
-
         currentBookData.forEach((pattern, index) => {
             const option = document.createElement('option');
-            option.value = index;
-            option.text = `Pattern ${pattern.number}: ${pattern.name}`;
+            option.value = index; option.text = `Pattern ${pattern.number}: ${pattern.name}`;
             patternSelect.appendChild(option);
         });
-
-        // Automatically select the first pattern
         handlePatternChange();
     }
-
     function handlePatternChange() {
         const patternIndex = document.getElementById('pattern-select').value;
         const selectedPattern = currentBookData[patternIndex];
-        
-        // Map data and reset game
         mapDataToGameFormat(selectedPattern);
-        currentIndex = 0;
-        currentTab = 0;
+        currentIndex = 0; currentTab = 0;
         switchTab(0);
         updateGameUI();
     }
-
     function showLoading(isLoading) {
         const loader = document.getElementById('loading-screen');
-        if(isLoading) loader.classList.remove('hidden');
-        else loader.classList.add('hidden');
+        loader.classList.toggle('hidden', !isLoading);
     }
-
-    // ==========================================
-    // 4. DATA MAPPING
-    // ==========================================
     function mapDataToGameFormat(patternObj) {
         const sec1 = patternObj.sections["Speaking I"];
         const sec2 = patternObj.sections["Speaking II"];
         const sec3 = patternObj.sections["Unscramble"];
-        
         currentQuestions = [];
-
-        for(let i=0; i < 10; i++) {
-            if (!sec1[i] || !sec2[i] || !sec3[i]) break;
-            
+        for(let i=0; i<10; i++) {
+            if(!sec1[i]||!sec2[i]||!sec3[i]) break;
             let scrambleArray = [];
-            if (sec3[i].scrambled) {
-                scrambleArray = sec3[i].scrambled.includes('/') 
-                    ? sec3[i].scrambled.split('/').map(s => s.trim())
-                    : sec3[i].scrambled.split(' ').map(s => s.trim());
+            if(sec3[i].scrambled) {
+                scrambleArray = sec3[i].scrambled.includes('/')
+                    ? sec3[i].scrambled.split('/').map(s=>s.trim())
+                    : sec3[i].scrambled.split(' ').map(s=>s.trim());
             }
-
             currentQuestions.push({
                 q: sec1[i].koreanOrQuestion,
                 k: sec2[i].koreanOrQuestion,
@@ -353,73 +228,49 @@
             });
         }
     }
-
-    // ==========================================
-    // 5. GAME LOGIC (Recording & UI)
-    // ==========================================
     async function toggleRecording() {
         const btn = document.getElementById('mic-btn');
         const feedback = document.getElementById('spoken-text');
-
         if (isRecording) {
-            mediaRecorder.stop();
-            isRecording = false;
+            mediaRecorder.stop(); isRecording = false;
             btn.classList.remove('recording');
             btn.classList.add('processing');
             feedback.innerText = "분석 중...";
             return;
         }
-
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
             mediaRecorder = new MediaRecorder(stream);
             audioChunks = [];
-
             mediaRecorder.ondataavailable = event => audioChunks.push(event.data);
             mediaRecorder.onstop = async () => {
                 const audioBlob = new Blob(audioChunks, { type: 'audio/webm' });
                 await sendToWhisper(audioBlob);
             };
-
-            mediaRecorder.start();
-            isRecording = true;
+            mediaRecorder.start(); isRecording = true;
             btn.classList.add('recording');
             feedback.innerText = "듣고 있어요...";
             document.getElementById('score-msg').innerText = "";
-            
-        } catch (err) {
-            alert("마이크 권한이 필요합니다.");
-        }
+        } catch(e) { alert("마이크 권한이 필요합니다."); }
     }
-
     async function sendToWhisper(blob) {
         const formData = new FormData();
         formData.append("file", blob, "recording.webm");
         formData.append("model", "whisper-1");
         formData.append("language", "en");
-
         try {
-            const response = await fetch("/api/proxy?type=stt", {
-                method: "POST",
-                body: formData
-            });
-
+            const response = await fetch("/api/proxy?type=stt", { method: "POST", body: formData });
             if (!response.ok) throw new Error("API Error");
             const data = await response.json();
-            
             document.getElementById('mic-btn').classList.remove('processing');
             if(data.error) throw new Error(data.error);
-            
             processResult(data.text);
-
         } catch (error) {
-            console.error(error);
             document.getElementById('spoken-text').innerText = "오류 발생";
             document.getElementById('score-msg').innerText = "다시 시도해주세요";
             document.getElementById('mic-btn').classList.remove('processing');
         }
     }
-
     async function speakQuestion() {
         const text = currentQuestions[currentIndex].q;
         try {
@@ -430,36 +281,60 @@
             });
             const blob = await response.blob();
             new Audio(URL.createObjectURL(blob)).play();
-        } catch (error) {
-            console.error("TTS Error", error);
+        } catch (error) {}
+    }
+    function processResult(spoken) {
+        const target = currentQuestions[currentIndex].a;
+        const cleanSpoken = normalizeText(spoken);
+        const cleanTarget = normalizeText(target);
+        const highlightedHTML = highlightErrors(spoken, target);
+        document.getElementById('spoken-text').innerHTML = highlightedHTML;
+        let isCorrect = false, msg = "";
+        if (currentTab === 0) {
+            isCorrect = cleanSpoken === cleanTarget;
+            msg = isCorrect ? "Excellent! 🎉" : `정답: ${target}`;
+        } else if (currentTab === 1) {
+            const hint = (currentQuestions[currentIndex].hint||"").toLowerCase();
+            isCorrect = cleanSpoken.includes(hint);
+            msg = isCorrect ? "Good Interview! 🎤" : `힌트(${currentQuestions[currentIndex].hint})를 포함하세요.`;
+        } else if (currentTab === 2) {
+            isCorrect = cleanSpoken === cleanTarget;
+            msg = isCorrect ? "Puzzle Solved! 🧩" : "순서가 틀렸어요.";
+            highlightWords(spoken);
         }
+        const scoreEl = document.getElementById('score-msg');
+        scoreEl.innerText = msg;
+        scoreEl.style.color = isCorrect ? "var(--success)" : "var(--error)";
     }
-
-undefined
-    function normalizeText(text) {
-        return text.toLowerCase().replace(/[.,?!]/g, "").trim();
+    function highlightErrors(spokenText, targetText) {
+        const spokenWords = spokenText.trim().split(/\s+/);
+        const targetWords = targetText.trim().split(/\s+/);
+        let html = "";
+        spokenWords.forEach((word, index) => {
+            const sClean = word.toLowerCase().replace(/[^a-z0-9]/g, '');
+            const tClean = targetWords[index] ? targetWords[index].toLowerCase().replace(/[^a-z0-9]/g, '') : '';
+            if (sClean === tClean) {
+                html += `<span class="diff-correct">${word}</span> `;
+            } else {
+                html += `<span class="diff-wrong">${word}</span> `;
+            }
+        });
+        return html;
     }
-
-    // ==========================================
-    // 6. UI HELPERS
-    // ==========================================
+    function normalizeText(text) { return text.toLowerCase().replace(/[.,?!]/g, "").trim(); }
     function switchTab(tabIndex) {
         currentTab = tabIndex;
         document.querySelectorAll('.tab').forEach((t, i) => t.classList.toggle('active', i === tabIndex));
         document.querySelectorAll('.activity-box').forEach((b, i) => b.classList.toggle('hidden', i !== tabIndex));
-        resetFeedback();
-        updateGameUI();
+        resetFeedback(); updateGameUI();
     }
-
     function updateGameUI() {
         if (!currentQuestions.length) return;
         const data = currentQuestions[currentIndex];
-        
         document.getElementById('q-num').innerText = currentIndex + 1;
         document.getElementById('korean-prompt').innerText = data.k;
         document.getElementById('english-question').innerText = data.q;
         document.getElementById('role-name').innerText = data.hint;
-        
         const scrambleBox = document.getElementById('scramble-box');
         scrambleBox.innerHTML = '';
         data.s.forEach(word => {
@@ -469,7 +344,6 @@ undefined
             scrambleBox.appendChild(chip);
         });
     }
-
     function highlightWords(spoken) {
         const words = spoken.toLowerCase().split(' ');
         document.querySelectorAll('.word-chip').forEach(chip => {
@@ -477,30 +351,21 @@ undefined
             else chip.classList.remove('active');
         });
     }
-
     function nextQuestion() {
         if (currentIndex < currentQuestions.length - 1) {
-            currentIndex++;
-            updateGameUI();
-            resetFeedback();
+            currentIndex++; updateGameUI(); resetFeedback();
         }
     }
-
     function prevQuestion() {
         if (currentIndex > 0) {
-            currentIndex--;
-            updateGameUI();
-            resetFeedback();
+            currentIndex--; updateGameUI(); resetFeedback();
         }
     }
-
     function resetFeedback() {
-        document.getElementById('spoken-text').innerText = "마이크를 누르고 말하세요";
+        document.getElementById('spoken-text').innerHTML = "마이크를 누르고 말하세요";
         document.getElementById('score-msg').innerText = "";
         document.getElementById('mic-btn').classList.remove('recording', 'processing');
     }
-
 </script>
-
 </body>
 </html>
